@@ -5,8 +5,15 @@ A comprehensive webhook implementation tutorial with both server and client comp
 ## 🚀 Quick Start
 
 ```bash
+# Create venv
+python -m venv .venv
+source ./.venv/Scripts/activate
+which python
+which pip
+# CTRL + SHFT + P: to select Python interpreter
+
 # Install dependencies
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
 # Start the webhook server
 python webhook_server.py
