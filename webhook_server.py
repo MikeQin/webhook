@@ -15,7 +15,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Get webhook secret from environment
+# To run test_webhook.py, set the environment variable:
+#   export WEBHOOK_SECRET="test-secret-for-verification"
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "your-secret-key-here")
+logger.info(f"Webhook secret configured: {'YES' if WEBHOOK_SECRET != 'your-secret-key-here' else 'NO (using default)'}")
 
 app = FastAPI(title="Simple Webhook Server", version="1.0.0")
 
@@ -60,16 +63,21 @@ async def receive_webhook(request: Request):
     try:
         # Get raw body for signature verification if needed
         raw_body = await request.body()
+        logger.info(f"Raw body received: {raw_body[:100]}...")  # Log first 100 chars
         
         # Get headers
         headers = dict(request.headers)
+        logger.info(f"Headers received: {list(headers.keys())}")
         
         # Verify signature if secret is configured
         if WEBHOOK_SECRET and WEBHOOK_SECRET != "your-secret-key-here":
             signature = headers.get("x-hub-signature-256") or headers.get("x-signature-256") or headers.get("signature")
-            if not verify_signature(raw_body, signature, WEBHOOK_SECRET):
+            if signature and not verify_signature(raw_body, signature, WEBHOOK_SECRET):
                 logger.warning("Invalid webhook signature")
                 raise HTTPException(status_code=401, detail="Invalid signature")
+            elif not signature:
+                logger.warning("No signature provided but signature verification is enabled")
+                raise HTTPException(status_code=401, detail="Signature required")
         
         # Parse JSON payload
         try:
@@ -87,8 +95,14 @@ async def receive_webhook(request: Request):
         
         return {"status": "success", "message": "Webhook processed", "result": result}
         
+    except HTTPException:
+        # Re-raise HTTPException without modification (401, 400, etc.)
+        raise
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
         logger.error(f"Error processing webhook: {str(e)}")
+        logger.error(f"Full traceback: {error_details}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 async def process_webhook_payload(payload: Dict[Any, Any], headers: Dict[str, str]) -> Dict[str, Any]:

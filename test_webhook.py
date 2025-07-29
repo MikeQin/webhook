@@ -9,7 +9,7 @@ import hashlib
 import time
 
 WEBHOOK_URL = "http://localhost:8000/webhook"
-SECRET = "your-secret-key-here"
+SECRET = "test-secret-for-verification"
 
 def create_signature(payload: str, secret: str) -> str:
     """Create HMAC-SHA256 signature for the payload"""
@@ -21,7 +21,9 @@ def create_signature(payload: str, secret: str) -> str:
     return f"sha256={signature}"
 
 def test_webhook_without_signature():
-    """Test webhook without signature verification"""
+    """Test webhook without signature verification
+    Expected: 401 - Signature required (when WEBHOOK_SECRET is configured)
+    """
     print("Testing webhook without signature...")
     
     payload = {
@@ -40,7 +42,9 @@ def test_webhook_without_signature():
     print()
 
 def test_webhook_with_signature():
-    """Test webhook with signature verification"""
+    """Test webhook with signature verification
+    Expected: 200 - Success (webhook processed successfully)
+    """
     print("Testing webhook with signature...")
     
     payload = {
@@ -67,7 +71,9 @@ def test_webhook_with_signature():
     print()
 
 def test_invalid_signature():
-    """Test webhook with invalid signature"""
+    """Test webhook with invalid signature
+    Expected: 401 - Invalid signature
+    """
     print("Testing webhook with invalid signature...")
     
     payload = {
@@ -86,7 +92,9 @@ def test_invalid_signature():
     print()
 
 def test_invalid_json():
-    """Test webhook with invalid JSON"""
+    """Test webhook with invalid JSON
+    Expected: 400 - Invalid JSON payload
+    """
     print("Testing webhook with invalid JSON...")
     
     headers = {"Content-Type": "application/json"}

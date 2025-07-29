@@ -23,10 +23,14 @@ python -m pip install --upgrade pip
 # Install dependencies
 python -m pip install -r requirements.txt
 
-# Start the webhook server
+# Terminal 1: Start server
+export WEBHOOK_SECRET="test-secret-for-verification"
 python webhook_server.py
 
-# Test with the client (in another terminal)
+# Terminal 2: Run tests
+python test_webhook.py
+
+# Terminal 2: Test with the client (in another terminal)
 python run_client_tests.py
 ```
 
@@ -282,17 +286,54 @@ print(f"Status: {delivery.status.value}")
 ```
 
 **CLI Usage:**
+
+**Basic Webhook:**
 ```bash
-# Send single webhook
-python run_client_cli.py send http://localhost:8000/webhook \
-  --payload '{"event_type": "test", "data": {"message": "hello"}}'
-
-# Send batch webhooks  
-python run_client_cli.py batch config.json
-
-# Generate examples
-python run_client_cli.py examples
+python run_client_cli.py --secret "test-secret-for-verification" send \
+  "http://localhost:8000/webhook" \
+  --payload '{"event_type": "user.created", "data": {"id": "user123", "email": "test@example.com"}}'
 ```
+
+**Using Payload File:**
+```bash
+# Generate example files first
+python run_client_cli.py examples
+
+# Send using the generated file
+python run_client_cli.py --secret "test-secret-for-verification" send \
+  "http://localhost:8000/webhook" \
+  --payload-file example_payload.json
+```
+
+**With Custom Headers and Retry Settings:**
+```bash
+python run_client_cli.py --secret "test-secret-for-verification" --retries 2 --timeout 10 send \
+  "http://localhost:8000/webhook" \
+  --payload '{"event_type": "test.event", "data": {"message": "hello"}}' \
+  --headers "X-Custom: MyValue" \
+  --headers "X-Source: CLI"
+```
+
+**Batch Webhooks:**
+```bash
+# Generate example batch file
+python run_client_cli.py examples
+
+# Send batch (edit example_batch.json to use localhost:8000 first)
+python run_client_cli.py --secret "test-secret-for-verification" batch example_batch.json
+```
+
+**Get Help:**
+```bash
+python run_client_cli.py --help
+python run_client_cli.py send --help
+python run_client_cli.py batch --help
+```
+
+**Key CLI Notes:**
+- Global options (`--secret`, `--retries`, `--timeout`) come **before** the command
+- URL is a **positional argument** after `send`
+- Use `--headers` (plural) for multiple headers
 
 ## 📚 Architecture Documentation
 
@@ -1156,6 +1197,29 @@ python run_client_cli.py send http://localhost:8000/webhook \
 - **`run_client_tests.py`** = "Test CLIENT from root"
 
 These files create a seamless user experience while maintaining clean package architecture! 🌉🔧
+
+## 🚀 Future Enhancements
+
+### Advanced Topics:
+
+- **Webhook Retry Strategies** - Dead letter queues, exponential backoff patterns
+- **Rate Limiting** - Preventing webhook abuse
+- **Webhook Ordering** - Handling out-of-order delivery
+- **Error Recovery** - What to do when webhooks fail permanently
+
+### Production Considerations:
+
+- **Monitoring & Observability** - Logging, metrics, alerting
+- **Scaling Patterns** - Load balancing, horizontal scaling
+- **Database Integration** - Storing webhook delivery history
+- **Performance Optimization** - Async processing, queue systems
+
+### Extended Examples:
+
+- **Real Service Integrations** - GitHub, Stripe, Slack examples
+- **Microservices Patterns** - Service-to-service communication
+- **Event Sourcing** - Using webhooks in event-driven architectures
+- **Testing Strategies** - Mock servers, integration testing
 
 ## 🤝 Contributing
 

@@ -26,7 +26,9 @@
       "Bash(echo $VIRTUAL_ENV)",
       "Bash(\"/c/Program Files/Python313/python.exe\" -m venv .venv --copies)",
       "Bash('/c/Program Files/Python313/python.exe' -m venv .venv --copies)",
-      "Bash(\"/c/Program Files/Python313/python\" -m venv .venv --copies)"
+      "Bash(\"/c/Program Files/Python313/python\" -m venv .venv --copies)",
+      "Bash(export WEBHOOK_SECRET=\"test-secret-for-verification\")",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

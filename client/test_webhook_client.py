@@ -10,7 +10,7 @@ async def test_basic_webhook():
     """Test basic webhook sending"""
     print("🧪 Testing basic webhook sending...")
     
-    client = WebhookClient(secret_key="your-secret-key-here")
+    client = WebhookClient(secret_key="test-secret-for-verification")
     
     payload = {
         "event_type": "test.basic",
@@ -34,7 +34,7 @@ async def test_webhook_with_retry():
     print("🧪 Testing webhook with retry (using invalid URL)...")
     
     client = WebhookClient(
-        secret_key="your-secret-key-here",
+        secret_key="test-secret-for-verification",
         max_retries=2,
         timeout=5
     )
@@ -65,7 +65,7 @@ async def test_multiple_webhooks():
     """Test sending multiple webhooks concurrently"""
     print("🧪 Testing multiple webhook sending...")
     
-    client = WebhookClient(secret_key="your-secret-key-here")
+    client = WebhookClient(secret_key="test-secret-for-verification")
     
     webhooks = [
         {
@@ -97,7 +97,7 @@ async def test_event_emitter():
     """Test the EventEmitter class"""
     print("🧪 Testing EventEmitter...")
     
-    client = WebhookClient(secret_key="your-secret-key-here")
+    client = WebhookClient(secret_key="test-secret-for-verification")
     
     # Multiple webhook URLs (including one invalid for demonstration)
     webhook_urls = [
@@ -134,7 +134,7 @@ async def test_delivery_tracking():
     """Test delivery tracking and monitoring"""
     print("🧪 Testing delivery tracking...")
     
-    client = WebhookClient(secret_key="your-secret-key-here")
+    client = WebhookClient(secret_key="test-secret-for-verification")
     
     # Send a webhook
     delivery = await client.send_webhook(
@@ -159,6 +159,30 @@ async def test_delivery_tracking():
     print(f"✅ Successful deliveries: {len(successful_deliveries)}")
     print()
 
+async def test_wrong_secret():
+    """Test webhook with wrong secret - should fail with 401"""
+    print("🧪 Testing webhook with wrong secret (security test)...")
+    
+    client = WebhookClient(secret_key="wrong-secret-intentionally")
+    
+    try:
+        delivery = await client.send_webhook(
+            url="http://localhost:8000/webhook",
+            payload={"event_type": "test.security", "data": {"test": True}},
+            delivery_id="security_test_001"
+        )
+        
+        if delivery.status == DeliveryStatus.FAILED and delivery.response_status == 401:
+            print("✅ PASSED: Wrong secret correctly rejected (401)")
+        else:
+            print(f"❌ FAILED: Expected 401, got status={delivery.status.value}, response_status={delivery.response_status}")
+            print(f"   Error: {delivery.error_message}")
+            
+    except Exception as e:
+        print(f"❌ FAILED: Exception occurred: {e}")
+    
+    print()
+
 async def main():
     """Run all tests"""
     print("🚀 Webhook Client Test Suite")
@@ -177,6 +201,7 @@ async def main():
                 await test_multiple_webhooks()
                 await test_event_emitter()
                 await test_delivery_tracking()
+                await test_wrong_secret()  # Test security
                 await test_webhook_with_retry()  # Run retry test last
                 
                 print("🎉 All tests completed!")
