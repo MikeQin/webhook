@@ -9,7 +9,24 @@
       "Bash(git config:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git remote add:*)"
+      "Bash(git remote add:*)",
+      "Bash(python:*)",
+      "Bash(source:*)",
+      "Bash(.venv/Scripts/python.exe:*)",
+      "Bash(\".venv/Scripts/python.exe\" --version)",
+      "Bash(rm:*)",
+      "Bash(echo $PATH)",
+      "Bash(deactivate)",
+      "Bash(true)",
+      "Bash(timeout:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(\"/c/Program Files/Python313/python\" --version)",
+      "Bash('/c/Program Files/Python313/python.exe' --version)",
+      "Bash(echo $VIRTUAL_ENV)",
+      "Bash(\"/c/Program Files/Python313/python.exe\" -m venv .venv --copies)",
+      "Bash('/c/Program Files/Python313/python.exe' -m venv .venv --copies)",
+      "Bash(\"/c/Program Files/Python313/python\" -m venv .venv --copies)"
     ],
     "deny": []
   }
